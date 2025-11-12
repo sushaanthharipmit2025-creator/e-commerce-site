@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skart - Smart Shopping</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif; }
+    body { background:#f8f8f8; color:#222; min-height:100vh; display:flex; flex-direction:column; }
+    header {
+      background:#222; color:#fff; padding:14px 22px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    header h1 { font-size:24px; letter-spacing:1px; }
+    nav ul { list-style:none; display:flex; gap:14px; }
+    nav a { color:#fff; text-decoration:none; font-weight:500; cursor:pointer; }
+    nav a.active, nav a:hover { color:#ff9800; }
+
+    main { flex:1; }
+
+    section { display:none; padding:36px 20px; }
+    section.active { display:block; }
+
+    .hero { text-align:center; padding:56px 12px; background:linear-gradient(90deg,#ff9800,#ffcc80); border-radius:6px; margin:18px auto; max-width:1100px; }
+    .hero h2 { font-size:34px; margin-bottom:6px; }
+    .hero p { font-size:16px; margin-bottom:14px; }
+
+    .btn { display:inline-block; padding:10px 16px; background:#e65100; color:#fff; border-radius:6px; border:none; cursor:pointer; font-weight:600; }
+    .btn:hover { background:#ff9800; }
+
+    .products { max-width:1100px; margin:24px auto; display:grid; gap:20px;
+       grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); align-items:start;
+    }
+
+    .product-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.06); transition:transform .14s; display:flex; flex-direction:column; }
+    .product-card:hover { transform:translateY(-6px); }
+    .product-card img { width:100%; height:200px; object-fit:cover; display:block; background:#f0f0f0; }
+    .product-info { padding:14px; text-align:center; flex:1; display:flex; flex-direction:column; justify-content:space-between; }
+    .product-info h3 { font-size:18px; margin-bottom:8px; }
+    .product-info p { color:#555; font-size:14px; margin-bottom:10px; }
+    .price { color:#e65100; font-weight:700; font-size:16px; margin-top:6px; }
+    .contact-form { max-width:700px; margin:20px auto; display:flex; flex-direction:column; gap:12px; align-items:center; }
+    .contact-form input, .contact-form textarea { width:92%; max-width:420px; padding:10px; border-radius:8px; border:1px solid #d0d0d0; }
+    footer { text-align:center; background:#222; color:#fff; padding:12px 0; margin-top:26px; }
+
+    @media (max-width:600px){
+      .hero h2 { font-size:26px; }
+      header h1 { font-size:20px; }
+      nav ul { gap:8px; }
+      .product-card img { height:160px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Skart</h1>
+    <nav>
+      <ul>
+        <li><a class="active" onclick="navigate('home', event)">Home</a></li>
+        <li><a onclick="navigate('products', event)">Products</a></li>
+        <li><a onclick="navigate('about', event)">About</a></li>
+        <li><a onclick="navigate('contact', event)">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Home -->
+    <section id="home" class="active">
+      <div class="hero">
+        <h2>Welcome to Skart</h2>
+        <p>Your smart shopping destination — neat UI, working buttons, and guaranteed images.</p>
+        <button class="btn" onclick="navigate('products', event)">Shop Now</button>
+      </div>
+    </section>
+
+    <!-- Products -->
+    <section id="products">
+      <div class="products" id="productsGrid">
+        <!-- Product cards inserted here -->
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about">
+      <div class="hero" style="padding:28px">
+        <h2>About Skart</h2>
+        <p>Skart is a demo e-commerce site built to teach front-end basics. Images are safe: if an external image fails, a built-in SVG placeholder appears instantly.</p>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+      <div class="hero" style="padding:28px">
+        <h2>Contact Us</h2>
+        <p>We'd love to hear from you. Use the form below — it shows a confirmation message without submitting anywhere.</p>
+        <form class="contact-form" onsubmit="return handleContact(event)">
+          <input id="cname" type="text" placeholder="Your name" required />
+          <input id="cemail" type="email" placeholder="Your email" required />
+          <textarea id="cmsg" rows="4" placeholder="Your message" required></textarea>
+          <button class="btn" type="submit">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Skart | Designed by Sushaanth Hari</p>
+  </footer>
+
+  <script>
+    /****************************************
+     * Product data
+     * Each product has: id, title, desc, price, images (array of external urls)
+     ****************************************/
+    const products = [
+      {
+        id: 'p1',
+        title: 'Smart Watch',
+        desc: 'Track fitness and stay connected.',
+        price: '₹2,999',
+        images: [
+          'https://images.unsplash.com/photo-1606813902781-8a2b06a2b02a?w=1000&auto=format&fit=crop&q=60',
+          'https://images.pexels.com/photos/277406/pexels-photo-277406.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1000'
+        ]
+      },
+      {
+        id: 'p2',
+        title: 'Wireless Headphones',
+        desc: 'Long battery life and deep bass.',
+        price: '₹1,499',
+        images: [
+          'https://images.unsplash.com/photo-1583225645092-5f8c7e8b9c91?w=1000&auto=format&fit=crop&q=60',
+          'https://images.pexels.com/photos/339466/pexels-photo-339466.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1000'
+        ]
+      },
+      {
+        id: 'p3',
+        title: 'Stylish Backpack',
+        desc: 'Perfect for travel and college.',
+        price: '₹899',
+        images: [
+          'https://images.unsplash.com/photo-1585155771379-4c2a3b7d8a7b?w=1000&auto=format&fit=crop&q=60',
+          'https://images.pexels.com/photos/374820/pexels-photo-374820.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1000'
+        ]
+      },
+      {
+        id: 'p4',
+        title: 'Smartphone',
+        desc: 'Fast performance and crisp camera.',
+        price: '₹14,999',
+        images: [
+          'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1000&auto=format&fit=crop&q=60',
+          'https://images.pexels.com/photos/5077043/pexels-photo-5077043.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=1000'
+        ]
+      }
+    ];
+
+    /***************************************************
+     * Utility: create product cards, attach robust images
+     * Behavior:
+     *  - try external urls in order
+     *  - if all fail, use inline SVG placeholder with product name (fast, always works)
+     ***************************************************/
+    function createProductCard(p) {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      // image element
+      const img = document.createElement('img');
+      img.alt = p.title + ' image';
+      // set a data-images attribute to try multiple URLs
+      img.dataset.urls = JSON.stringify(p.images || []);
+      // try first URL immediately
+      if (p.images && p.images.length) img.src = p.images[0];
+      else setPlaceholder(img, p.title);
+
+      // if image fails, attempt fallback URLs; if none left, use placeholder
+      img.onerror = function () {
+        tryNextImage(this, p.title);
+      };
+
+      const info = document.createElement('div');
+      info.className = 'product-info';
+      info.innerHTML = `
+        <div>
+          <h3>${escapeHtml(p.title)}</h3>
+          <p>${escapeHtml(p.desc)}</p>
+        </div>
+        <div>
+          <div class="price">${escapeHtml(p.price)}</div>
+          <div style="margin-top:10px">
+            <button class="btn" onclick="addToCart('${escapeJs(p.title)}')">Add to Cart</button>
+          </div>
+        </div>
+      `;
+
+      card.appendChild(img);
+      card.appendChild(info);
+      return card;
+    }
+
+    // Try next url in data attribute list; if none -> placeholder
+    function tryNextImage(imgEl, title) {
+      const urls = JSON.parse(imgEl.dataset.urls || '[]');
+      if (!urls || urls.length === 0) {
+        setPlaceholder(imgEl, title);
+        return;
+      }
+      // remove the failed url (first one), and try next
+      urls.shift();
+      if (urls.length === 0) {
+        setPlaceholder(imgEl, title);
+        return;
+      }
+      // set remaining urls back
+      imgEl.dataset.urls = JSON.stringify(urls);
+      // try next
+      imgEl.src = urls[0];
+      // if that fails, onerror will call tryNextImage again
+    }
+
+    // Replace image src with an inline SVG data-uri placeholder (fast, no external calls)
+    function setPlaceholder(imgEl, title) {
+      const svg = generateSVGPlaceholder(title);
+      // encode and set
+      imgEl.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+      // remove onerror to avoid loops
+      imgEl.onerror = null;
+    }
+
+    // Generate simple SVG with product title centered
+    function generateSVGPlaceholder(title) {
+      const safeTitle = escapeXml(title);
+      const svg =
+        `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'>
+          <rect width='100%' height='100%' fill='#f1f1f1'/>
+          <rect x='40' y='40' width='720' height='420' rx='12' fill='#ffffff' stroke='#e6e6e6'/>
+          <text x='50%' y='48%' dominant-baseline='middle' text-anchor='middle' font-family='Poppins, Arial' font-size='28' fill='#888'>
+            ${safeTitle}
+          </text>
+          <text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-family='Poppins, Arial' font-size='14' fill='#bbb'>
+            Image unavailable — placeholder
+          </text>
+        </svg>`;
+      return svg;
+    }
+
+    // Basic escaping helpers to avoid injection
+    function escapeXml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    function escapeHtml(str){ return escapeXml(str); }
+    function escapeJs(str){ return String(str).replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+    // Render products to grid
+    const grid = document.getElementById('productsGrid');
+    products.forEach(p => grid.appendChild(createProductCard(p)));
+
+    // Navigation
+    function navigate(sectionId, ev) {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      // show section
+      document.querySelectorAll('main section').forEach(s=> s.classList.remove('active'));
+      const sec = document.getElementById(sectionId);
+      if (sec) sec.classList.add('active');
+      // active nav link
+      document.querySelectorAll('nav a').forEach(a=> a.classList.remove('active'));
+      if (ev && ev.currentTarget) {
+        // if click came from <a>, mark it
+        ev.currentTarget.classList && ev.currentTarget.classList.add('active');
+      } else {
+        // try to find the nav link by text
+        const link = Array.from(document.querySelectorAll('nav a')).find(x=> x.textContent.trim().toLowerCase()===sectionId);
+        if (link) link.classList.add('active');
+      }
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    // Add to cart (demo): store titles in localStorage and show small confirmation
+    function addToCart(title) {
+      try {
+        const cart = JSON.parse(localStorage.getItem('skart_cart') || '[]');
+        cart.push({ title, addedAt: Date.now() });
+        localStorage.setItem('skart_cart', JSON.stringify(cart));
+        flash(`${title} added to cart`);
+      } catch (e) {
+        alert(title + ' added to cart');
+      }
+    }
+
+    // Simple visual toast (small) for confirmation
+    function flash(msg) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position:'fixed', right:'18px', bottom:'18px', background:'#222', color:'#fff',
+        padding:'10px 14px', borderRadius:'8px', boxShadow:'0 6px 18px rgba(0,0,0,0.2)', zIndex:9999, opacity:0
+      });
+      document.body.appendChild(t);
+      // fade in
+      requestAnimationFrame(()=> t.style.transition='opacity .25s', t.style.opacity=1);
+      setTimeout(()=> {
+        t.style.opacity=0;
+        setTimeout(()=> t.remove(), 300);
+      }, 1400);
+    }
+
+    // Contact handler
+    function handleContact(ev) {
+      ev.preventDefault();
+      const n = document.getElementById('cname').value.trim();
+      const e = document.getElementById('cemail').value.trim();
+      const m = document.getElementById('cmsg').value.trim();
+      if (!n || !e || !m) return false;
+      // show confirmation - not actually sending
+      flash(`Thanks ${n.split(' ')[0]}! We'll reply to ${e}`);
+      // clear
+      document.getElementById('cname').value='';
+      document.getElementById('cemail').value='';
+      document.getElementById('cmsg').value='';
+      // go to home after send
+      setTimeout(()=> navigate('home'), 600);
+      return false;
+    }
+
+    // Ensure all images have a placeholder if they fail during initial load (covers cached failures)
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.product-card img').forEach(img => {
+        // if image complete but naturalWidth is 0, it's failed -> substitute
+        if (img.complete && img.naturalWidth === 0) {
+          const title = img.alt || 'Image';
+          setPlaceholder(img, title.replace(' image',''));
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
